@@ -52,7 +52,7 @@ def add_product(products):
         "id": product_id,
         "name": name,
         "price": price,
-        "quantiity": quantiity,
+        "quantiity": quantity,
     }
     
     products.append(product)
