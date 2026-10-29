@@ -66,7 +66,7 @@ products = [
 def show_menu():
     print("===== Inventory Management=====")
     print("1. Add product")
-    print("2. View prodcut")
+    print("2. View product")
     print("3. Update stock")
     print("4. Search product")
     print("5. Stock summary")
@@ -74,16 +74,36 @@ def show_menu():
     print("7. Exit")
 
 def add_product(products):
-    product_id = input("Enter product ID: ")
+    product_id = input("Enter product ID: ").strip()
+
+    if product_id == "":
+        print("Product ID cannot be empty!")
+        return
 
     for product in products:
-        if product["id"] == product_id:
+        if product["id"].lower() == product_id.lower():
             print("Product ID already exists!")
             return
 
-    name = input("Enter product name: ")
-    price = float(input("Enter product price: "))
-    quantity = int(input("Enter product quantity: "))
+    name = input("Enter product name: ").strip()
+
+    if name == "":
+        print("Product name cannot be empty!")
+        return
+    try:
+        price = float(input("Enter product price: "))
+        quantity = int(input("Enter product quantity: "))
+    except ValueError:
+        print("Price must be a number and quantity must be a whole number!")
+        return
+
+    if price < 0:
+        print("Price cannot be negative!")
+        return
+
+    if quantity < 0:
+        print("Quantity cannot be negative!")
+        return
 
     product = {
         "id": product_id,
@@ -97,7 +117,7 @@ def add_product(products):
 
 def view_product(products):
     if not products:
-        print("Not ptoducts found")
+        print("Not products found")
     else:
         print("ID | Name | Price | Quantity")
 
@@ -110,19 +130,27 @@ def view_product(products):
             )
 
 def update_stock(products):
-    products_id = input("Enter product id: ")
+    products_id = input("Enter product id: ").strip()
 
     for product in products:
-        if product["id"] == products_id:
+        if product["id"].lower() == products_id.lower():
             print("1. Add stock")
             print("2. Reduce stock")
 
             choice = input("Choose option: ")
-            amount = int(input("Enter quatity: "))
+            if choice != "1" and choice != "2":
+                print("Invalid option")
+                return
+            try:
+                amount = int(input("Enter quatity: "))
+            except ValueError:
+                print("Quantity must be a whole number")
+                return
 
             if amount <= 0:
                 print("Quantity must be positive: ")
                 return
+            
             if choice == "1":
                 product["quantity"] += amount
                 print("Stock updated successfully")
@@ -139,6 +167,8 @@ def update_stock(products):
 
 
 def search_product(products, keyword):
+    keyword = keyword.strip().lower()
+
     for product in products:
         if (keyword.lower() == product["id"].lower() or keyword.lower() == product["name"].lower()):
             return product
@@ -146,22 +176,30 @@ def search_product(products, keyword):
 
 def stock_summary(products):
     total_value = 0
+    total_quantity = 0
 
     print("\n --- Stock Summary ---")
+
+    if not products:
+        print("No products found")
+        print("Total stock value: 0 baht")
+        print("Total quantity: 0")
 
     for product in products:
         value = product["price"] * product["quantity"]
         total_value += value
+        total_quantity += product["quantity"]
 
         if product["quantity"] <= 5:
             print("Low stock:", product["name"], "-", product["quantity"], "left")
 
-    print("Total stock value: ", total_value, "baht")
+    print("Total stock value: ", round(total_value, 2), "baht")
+    print("Total quantity:", total_quantity)
 
 def remove_product(products):
-    product_id = input("Enter product id to remove: ")
+    product_id = input("Enter product id to remove: ").strip()
     for product in products:
-        if product["id"] == product_id:
+        if product["id"].lower() == product_id.lower():
             products.remove(product)
             print("Product removed successfully")
             return
@@ -169,7 +207,7 @@ def remove_product(products):
 
 while True:
     show_menu()
-    choice = input("Enter your menu: ")
+    choice = input("Enter your menu: ").strip()
 
     if choice == "1":
         add_product(products)
@@ -184,7 +222,12 @@ while True:
         keyword = input("Enter product id or name: ")
         result = search_product(products, keyword)
         if result is not None:
-            print(result)
+            print( 
+                "ID:", result["id"],
+                "| Name:", result["name"],
+                "| Price", result["price"]
+                "| Quantity", result["quantity"]
+            )
         else:
             print("Product not found")
 
